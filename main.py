@@ -4,7 +4,6 @@ import requests as r
 def main():
     url: str = "https://www.dnd5eapi.co/api/"
     command_list: dict = {"help": "Выводит доступные команды.", "leave": "покидает программу.",
-                          "to_element": "Возвращает к выбору особенностей элемента",
                           "to_part": "Возвращает к выбору из списка раздела.",
                           "to_start": "Возвращает к выбору раздела."}
     is_working: bool = True
@@ -77,20 +76,30 @@ def main():
                 for i in work_with:
                     if i != 'index' and i != 'dc':
                         print(i.capitalize() + ": " + work_with[i])
+            elif type(work_with) is bool:
+                print(result.capitalize() + ": " + "Нет" if not work_with else "Да")
             elif type(work_with) is str or type(work_with) is int:
                 print(result.capitalize() + ": " + work_with)
             elif type(work_with) is list:
-                if type(work_with[0]) is dict:
-                    for i in work_with:
-                        for j in i:
-                            if j != "index":
-                                print(j.capitalize() + ": " + i[j])
+                if len(work_with) > 0:
+                    if type(work_with[0]) is dict:
+                        for i in work_with:
+                            for j in i:
+                                if j != "index":
+                                    print(j.capitalize() + ": " + i[j])
+                    else:
+                        for i in range(len(work_with)):
+                            if i != 0:
+                                print(work_with[i])
+                            else:
+                                print(result.capitalize() + ": ", end='')
+                                print(work_with[i])
             result = ""
             print(
-                'Сейчас вы вернетесь к выбору элемента,'
+                'Сейчас вы вернетесь к выбору элемента введите "ok", чтобы продолжить,'
                 ' но вы можете ввести команду или "help", чтобы увилеть их список.')
             inp: str = input()
-            if inp not in command_list:
+            if inp not in command_list and inp != "ok":
                 print("Такой команды нет, возможно вы ошиблись.")
 
         if inp in command_list:
@@ -99,12 +108,9 @@ def main():
             elif inp == "help":
                 for i in command_list:
                     print(i + ": " + command_list[i])
-            elif inp == "to_element" and result:
-                result = ""
             elif inp == "to_part" and results:
                 results = False
                 remembered_part = remembered_part[:remembered_part.rfind("/")]
-                print(remembered_part)
             elif inp == "to_start":
                 remembered_part = ""
                 results = False
