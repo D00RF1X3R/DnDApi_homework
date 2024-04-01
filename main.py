@@ -4,6 +4,7 @@ import requests as r
 def main():
     url: str = "https://www.dnd5eapi.co/api/"
     command_list: dict = {"help": "Выводит доступные команды.", "leave": "покидает программу.",
+                          "to_element": "Возвращает к выбору особенностей элемента",
                           "to_part": "Возвращает к выбору из списка раздела.",
                           "to_start": "Возвращает к выбору раздела."}
     is_working: bool = True
@@ -54,22 +55,43 @@ def main():
                 f" Выберите интересующую вас часть:")
             ans: dict = r.get(url + remembered_part).json()
             print("Имя:" + ans['name'])
-            print("Описание: " + ans['desc'][0])
             print("В этом элементе также пристутствуют следующие элементы: ")
             keys: list = list(ans.keys())
             for i in keys:
                 print(i, end=" | ")
                 counter += 1
                 if counter == 14:
-                    print("\n")
+                    print("")
+            counter = 0
+            print(keys[-1])
             print("Введите название элемента, чтобы узнать о нем больше.")
+            inp: str = input()
             if inp in keys:
                 result = inp
             elif inp not in command_list:
                 print("Такого элемета нет, возможно вы ошиблись.")
 
         else:
-            print('Введите команду из доступных или "help", чтобы увидеть их список.')
+            work_with = ans[result]
+            if type(work_with) is dict:
+                for i in work_with:
+                    if i != 'index' and i != 'dc':
+                        print(i.capitalize() + ": " + work_with[i])
+            elif type(work_with) is str or type(work_with) is int:
+                print(result.capitalize() + ": " + work_with)
+            elif type(work_with) is list:
+                if type(work_with[0]) is dict:
+                    for i in work_with:
+                        for j in i:
+                            if j != "index":
+                                print(j.capitalize() + ": " + i[j])
+            result = ""
+            print(
+                'Сейчас вы вернетесь к выбору элемента,'
+                ' но вы можете ввести команду или "help", чтобы увилеть их список.')
+            inp: str = input()
+            if inp not in command_list:
+                print("Такой команды нет, возможно вы ошиблись.")
 
         if inp in command_list:
             if inp == "leave":
@@ -85,6 +107,8 @@ def main():
                 print(remembered_part)
             elif inp == "to_start":
                 remembered_part = ""
+                results = False
+                result = ""
 
 
 if __name__ == "__main__":
